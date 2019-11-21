@@ -1,0 +1,983 @@
+<%#
+ Copyright 2019 Askey
+-%>
+
+<%-
+local uci = require "luci.model.uci".cursor()
+-%>
+<%+cbi/layer3%>
+
+<script type="text/javascript">//<![CDATA[
+
+var info=<%=luci.sys.exec("/sbin/mesh_topology_sta_GUI.lua")%>;
+/*----------------------------------------------------------------------------------------------*/
+
+$(document).ready(function() {
+    var printed_mac = [], root_mac, line = [0,0,0,0,0,0];
+    console.log("HEMANTH CHECK");
+    if (info.mesh_topology) {
+        print_root_detail();
+        root_mac = info.mesh_topology[0].node_id;
+        printed_mac[root_mac] = 1;
+
+        if (info.mesh_topology.length == 2) {
+            print_mesh0_detail(0,0);
+            $("div.m_mesh_mesh0").show();
+            line[3] = 1;
+        }
+
+
+        else if (info.mesh_topology.length == 3) {
+            var ap1 , ap2, i, j, ap1ind, ap2ind;
+            if (info.mesh_topology[1].neighbors.length >= info.mesh_topology[2].neighbors.length ) {
+                ap1 = info.mesh_topology[1].node_id; ap1ind = 1;
+                ap2 = info.mesh_topology[2].node_id; ap2ind = 2;
+            }
+            else {
+                ap1 = info.mesh_topology[2].node_id; ap1ind = 2;
+                ap2 = info.mesh_topology[1].node_id; ap2ind = 1;
+            }
+            for (i = 0; i < info.mesh_topology.length; i++) {
+                for(j =0; j < info.mesh_topology[i].neighbors.length; j++) {
+                        if(ap1 == info.mesh_topology[i].neighbors[j].neighbor_id) {
+                                if(printed_mac[ap1] == undefined) {
+                                        print_mesh1_detail(i,j);
+                                        printed_mac[ap1] = 1;
+                                }
+                        }
+                        if(ap2 == info.mesh_topology[i].neighbors[j].neighbor_id) {
+                                if(printed_mac[ap2] == undefined) {
+                                        print_mesh2_detail(i,j);
+                                        printed_mac[ap2] = 1;
+                                }
+                        }
+                }
+            }
+            for (i = 0; i < info.mesh_topology[ap1ind].neighbors.length; i++) {
+                if (info.mesh_topology[ap1ind].neighbors[i].neighbor_id == root_mac) {
+                    line[0] = 1;
+                }
+                if (info.mesh_topology[ap1ind].neighbors[i].neighbor_id == ap2) {
+                    line[2] = 1;
+                }
+            }
+            for (i = 0; i < info.mesh_topology[ap2ind].neighbors.length; i++) {
+                if (info.mesh_topology[ap2ind].neighbors[i].neighbor_id == root_mac) {
+                    line[1] = 1;
+                }
+                if (info.mesh_topology[ap2ind].neighbors[i].neighbor_id == ap1) {
+                    line[2] = 1;
+                }
+            }
+
+            $("div.m_mesh_mesh1").show();
+            $("div.m_mesh_mesh2").show();
+        }
+
+        else if (info.mesh_topology.length == 4) {
+                console.log("IT COMES INSIDE");
+                var ap1, ap2, ap3 , i, j, ap1ind, ap2ind, ap3ind;
+                if ((info.mesh_topology[1].neighbors.length >= info.mesh_topology[2].neighbors.length) && (info.mesh_topology[1].neighbors.length >= info.mesh_topology[3].neighbors.length)) {
+                        ap1 = info.mesh_topology[1].node_id; ap1ind = 1;
+                        if(info.mesh_topology[2].neighbors.length >= info.mesh_topology[3].neighbors.length) {
+                                ap2 = info.mesh_topology[2].node_id; ap2ind = 2;
+                                ap3 = info.mesh_topology[3].node_id; ap3ind = 3;
+                        } else {
+                                ap2 = info.mesh_topology[3].node_id; ap2ind = 3;
+                                ap3 = info.mesh_topology[2].node_id; ap3ind = 2;
+
+                        }
+                }
+                if ((info.mesh_topology[2].neighbors.length >= info.mesh_topology[1].neighbors.length) && (info.mesh_topology[2].neighbors.length >= info.mesh_topology[3].neighbors.length)) {
+                        ap1 = info.mesh_topology[2].node_id; ap1ind = 2;
+                        if(info.mesh_topology[1].neighbors.length >= info.mesh_topology[3].neighbors.length) {
+                                ap2 = info.mesh_topology[1].node_id; ap2ind = 1;
+                                ap3 = info.mesh_topology[3].node_id; ap3ind = 3;
+                        } else {
+                                ap2 = info.mesh_topology[3].node_id; ap2ind = 3;
+                                ap3 = info.mesh_topology[1].node_id; ap3ind = 1;
+
+                        }
+                }
+                if ((info.mesh_topology[3].neighbors.length >= info.mesh_topology[1].neighbors.length) && (info.mesh_topology[3].neighbors.length >= info.mesh_topology[2].neighbors.length)) {
+                        ap1 = info.mesh_topology[3].node_id; ap1ind = 3;
+                        if(info.mesh_topology[1].neighbors.length >= info.mesh_topology[2].neighbors.length) {
+                                ap2 = info.mesh_topology[1].node_id; ap2ind = 1;
+                                ap3 = info.mesh_topology[2].node_id; ap3ind = 2;
+                        } else {
+                                ap2 = info.mesh_topology[2].node_id; ap2ind = 2;
+                                ap3 = info.mesh_topology[1].node_id; ap3ind = 1;
+
+                        }
+                }
+
+                for (i = 0; i < info.mesh_topology.length; i++) {
+                for (j = 0; j < info.mesh_topology[i].neighbors.length; j++) {
+                        if(ap1 == info.mesh_topology[i].neighbors[j].neighbor_id) {
+                                if(printed_mac[ap1] == undefined) {
+                                        print_mesh1_detail(i,j);
+                                        printed_mac[ap1] = 1;
+                                }
+                        }
+                        if(ap2 == info.mesh_topology[i].neighbors[j].neighbor_id) {
+                                if(printed_mac[ap2] == undefined) {
+                                        print_mesh2_detail(i,j);
+                                        printed_mac[ap2] = 1;
+                                }
+                        }
+                        if(ap3 == info.mesh_topology[i].neighbors[j].neighbor_id) {
+                                if(printed_mac[ap3] == undefined) {
+                                        print_mesh0_detail(i,j);
+                                        printed_mac[ap3] = 1;
+                                }
+                        }
+                }
+                }
+                console.log(root_mac+" ,"+ap1+" ,"+ap2+" ,"+ap3);
+                for (i = 0; i < info.mesh_topology[ap1ind].neighbors.length; i++) {
+
+                    if (info.mesh_topology[ap1ind].neighbors[i].neighbor_id == root_mac) {
+                        line[0] = 1;
+                    }
+                    if (info.mesh_topology[ap1ind].neighbors[i].neighbor_id == ap2) {
+                        line[2] = 1;
+                    }
+                    if (info.mesh_topology[ap1ind].neighbors[i].neighbor_id == ap3) {
+                        line[4] = 1;
+                    }
+                }
+                for (i = 0; i < info.mesh_topology[ap2ind].neighbors.length; i++) {
+                    if (info.mesh_topology[ap2ind].neighbors[i].neighbor_id == root_mac) {
+                        line[1] = 1;
+                    }
+                    if (info.mesh_topology[ap2ind].neighbors[i].neighbor_id == ap1) {
+                        line[2] = 1;
+                    }
+                    if (info.mesh_topology[ap2ind].neighbors[i].neighbor_id == ap3) {
+                        line[5] = 1;
+                    }
+                }
+                for (i = 0; i < info.mesh_topology[ap3ind].neighbors.length; i++) {
+                    if (info.mesh_topology[ap3ind].neighbors[i].neighbor_id == root_mac) {
+                        line[3] = 1;
+                    }
+                    if (info.mesh_topology[ap3ind].neighbors[i].neighbor_id == ap1) {
+                        line[4] = 1;
+                    }
+                    if (info.mesh_topology[ap3ind].neighbors[i].neighbor_id == ap2) {
+                        line[5] = 1;
+                    }
+                }
+
+            $("div.m_mesh_mesh1").show();
+            $("div.m_mesh_mesh2").show();
+            $("div.m_mesh_mesh0").show();
+        }
+        print_lines(line);
+        //$("div.m_mesh0_line1").hide();
+        // show detail information when mouse in/out
+        $(".mesh_image_act, .phone").hover( function(){$(this).next().show();}, function(){$(this).next().hide();});
+    }
+});
+
+function print_lines(line) {
+    console.log(line);
+    if(line[0] == 0) {
+        $("div.m_mesh1_line").hide();
+    }
+    if(line[1] == 0) {
+        $("div.m_mesh2_line1").hide();
+    }
+    if(line[2] == 0) {
+        $("div.m_mesh2_line2").hide();
+    }
+    if(line[3] == 0) {
+        $("div.m_mesh0_line1").hide();
+    }
+    if(line[4] == 0) {
+        $("div.m_mesh0_line2").hide();
+    }
+    if(line[5] == 0) {
+        $("div.m_mesh0_line3").hide();
+    }
+}
+function print_root_detail() {
+    if (info.mesh_topology[0].node_id == undefined)
+    {
+        info.mesh_topology[0].node_id="<%=uci:get("wireless", "radio0", "macaddr")%>";
+        var meshmode="<%=uci:get("wireless", "mesh", "meshmode")%>";
+        if (meshmode == "0" || meshmode == "3")
+            info.mesh_topology[0].type="re";
+        else
+            info.mesh_topology[0].type="root";
+
+        var eth_status;
+        <%=luci.util.exec("diag eth_status p4 | cut -d \"=\" -f2 | cut -d \",\" -f1 > /tmp/eth_status.txt")%>
+        <%fd=io.popen("cat /tmp/eth_status.txt", "r")%>
+        <%if fd then%>
+            eth_status = "<%=fd:read("*l")%>";
+            <%fd:close()%>
+        <%end%>
+        if (eth_status && eth_status == "up")
+            if (meshmode == "0" || meshmode == "3")
+                info.mesh_topology[0].path = "Ethernet";
+            else
+                info.mesh_topology[0].path = "5G";
+        else
+            info.mesh_topology[0].path = "5G";
+    }
+
+    $(".m_mesh_root_info").html("Node ID : " + info.mesh_topology[0].node_id +
+                              "<br> Type : " + info.mesh_topology[0].type +
+                              "<br> Path : " + info.mesh_topology[0].path);
+
+    var i=0, s_item, j=0, k=0, assoc_cnt=-1;
+    for (i=0; i< info.mesh_topology[0].associated_clients.length; i++) {
+        if (assoc_cnt == 3) break;/* support 4 device */
+
+        if (info.mesh_topology[0].neighbors) {
+            var meshApFound = false;
+            for (k=0; k<info.mesh_topology[0].neighbors.length;k++)
+            {
+                var assoc_mac = info.mesh_topology[0].associated_clients[i].mac.substring(0, info.mesh_topology[0].associated_clients[i].mac.length - 2);
+                var mesh_mac = info.mesh_topology[0].neighbors[k].neighbor_id.substring(0, info.mesh_topology[0].neighbors[k].neighbor_id.length - 2);
+
+                if (info.mesh_topology[0].associated_clients[i].mac == info.mesh_topology[0].neighbors[k].neighbor_id)
+                {
+                    meshApFound = true;
+                    break;
+                }
+                else if (assoc_mac == mesh_mac)
+                {
+                    var mac_hex = info.mesh_topology[0].neighbors[k].neighbor_id.slice(-2);
+                    var mac_dec = parseInt(mac_hex, 16);
+                    mac_dec -= 4;
+                    mac_hex = mac_dec.toString(16);
+                    var lan_backhaul_mac = mesh_mac.concat(mac_hex);
+
+                    if (info.mesh_topology[0].associated_clients[i].mac == lan_backhaul_mac)
+                    {
+                        meshApFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (meshApFound == true)
+            {
+                continue;
+            }
+        }
+
+        if (info.lease_data) {
+            for (j=0; j< info.lease_data.length; j++)
+            {
+                if (info.mesh_topology[0].associated_clients[i].mac == info.lease_data[j].lease_mac)
+                {
+                    info.mesh_topology[0].associated_clients[i].Hostname = info.lease_data[j].lease_hostname;
+                    info.mesh_topology[0].associated_clients[i].IPAddress = info.lease_data[j].lease_ip;
+                    break;
+                }
+            }
+        }
+        assoc_cnt++;
+        if (info.mesh_topology[0].associated_clients[i].rssi == "0") info.mesh_topology[0].associated_clients[i].rssi = "None";
+
+        s_item = '<div id="root_client'+ (assoc_cnt+1) +'_div">'
+            +       '<div class="root_client'+ (assoc_cnt+1) +'_line"></div>'
+            +       '<div class="root_client'+ (assoc_cnt+1) +'_img phone"><span style="padding-left: 50px;">'+ info.mesh_topology[0].associated_clients[i].Hostname +'</span></div>'
+            +       '<div class="root_client_info info_board" style="display:none;">'
+            +                  'Hostname : '+ info.mesh_topology[0].associated_clients[i].Hostname +'<br />'
+            +                       'MAC : '+ info.mesh_topology[0].associated_clients[i].mac +'<br />'
+            +                      'RSSI : '+ info.mesh_topology[0].associated_clients[i].rssi +'<br />'
+            +               '802.11 mode : '+ info.mesh_topology[0].associated_clients[i]["802.11"] +'<br />'
+            +                'Link Speed : '+ info.mesh_topology[0].associated_clients[i].Link_Speed +'<br />'
+            +                  'Security : '+ info.mesh_topology[0].associated_clients[i].Security +'<br />'
+            +                 'Frequency : '+ info.mesh_topology[0].associated_clients[i].Frequency +'<br />'
+            +                'IP Address : '+ info.mesh_topology[0].associated_clients[i].IPAddress +'<br />'
+            +               'Realtime BW : '+ info.mesh_topology[0].associated_clients[i].Realtime_BW +'<br />'
+            +       '</div>'
+            +    '</div>';
+        $("div.m_mesh_root").append(s_item);
+    }
+}
+function print_mesh1_detail(m,n) {
+    $(".m_mesh_mesh1_info").html("Neighbor ID : " + info.mesh_topology[m].neighbors[n].neighbor_id +
+                                   "<br> Mode : " + info.mesh_topology[m].neighbors[n].mode +
+                             "<br> Tx Packets : " + info.mesh_topology[m].neighbors[n].tx_packets +
+                             "<br> Rx Packets : " + info.mesh_topology[m].neighbors[n].rx_packets +
+                                "<br> Tx Rate : " + info.mesh_topology[m].neighbors[n].tx_rate +
+                                   "<br> RSSI : " + info.mesh_topology[m].neighbors[n].rssi +
+                             "<br> Expiretime : " + info.mesh_topology[m].neighbors[n].expiretime);
+
+    var i=0, s_item, j=0, k=0, assoc_cnt=-1;
+    var x=0, index=-1;
+    for (x=0; x<info.mesh_topology.length; x++)
+    {
+        if(info.mesh_topology[x] && (info.mesh_topology[x].node_id == info.mesh_topology[m].neighbors[n].neighbor_id)) {
+            index = x;
+            break;
+        }
+    }
+
+    if (index == -1)
+        return;
+
+    if (info.mesh_topology[index]) {
+        for (i=0; i< info.mesh_topology[index].associated_clients.length; i++) {
+            if (assoc_cnt == 2) break;/* support 3 device */
+
+            if (info.mesh_topology[index].neighbors) {
+                var meshApFound = false;
+                for (k=0; k<info.mesh_topology[index].neighbors.length;k++)
+                {
+                    if (info.mesh_topology[index].associated_clients[i].mac == info.mesh_topology[index].neighbors[k].neighbor_id)
+                    {
+                        meshApFound = true;
+                        break;
+                    }
+                }
+
+                if (meshApFound == true)
+                {
+                    continue;
+                }
+            }
+
+            if (info.lease_data) {
+                for (j=0; j< info.lease_data.length; j++)
+                {
+                    if (info.mesh_topology[index].associated_clients[i].mac == info.lease_data[j].lease_mac)
+                    {
+                        info.mesh_topology[index].associated_clients[i].Hostname = info.lease_data[j].lease_hostname;
+                        info.mesh_topology[index].associated_clients[i].IPAddress = info.lease_data[j].lease_ip;
+                        break;
+                    }
+                }
+            }
+
+            assoc_cnt++;
+            if (info.mesh_topology[index].associated_clients[i].rssi == "0") info.mesh_topology[index].associated_clients[i].rssi = "None";
+            s_item = '<div id="mesh1_client'+ (assoc_cnt+1) +'_div">'
+                +       '<div class="mesh1_client'+ (assoc_cnt+1) +'_line"></div>'
+                +       '<div class="mesh1_client'+ (assoc_cnt+1) +'_img phone"><br /><span class="mesh_client_text">'+ info.mesh_topology[index].associated_clients[i].Hostname +'</span></div>'
+                +       '<div class="mesh1_client_info info_board" style="display:none;">'
+                +                  'Hostname : '+ info.mesh_topology[index].associated_clients[i].Hostname +'<br />'
+                +                       'MAC : '+ info.mesh_topology[index].associated_clients[i].mac +'<br />'
+                +                      'RSSI : '+ info.mesh_topology[index].associated_clients[i].rssi +'<br />'
+                +               '802.11 mode : '+ info.mesh_topology[index].associated_clients[i]["802.11"] +'<br />'
+                +                'Link Speed : '+ info.mesh_topology[index].associated_clients[i].Link_Speed +'<br />'
+                +                  'Security : '+ info.mesh_topology[index].associated_clients[i].Security +'<br />'
+                +                 'Frequency : '+ info.mesh_topology[index].associated_clients[i].Frequency +'<br />'
+                +                'IP Address : '+ info.mesh_topology[index].associated_clients[i].IPAddress +'<br />'
+                +               'Realtime BW : '+ info.mesh_topology[index].associated_clients[i].Realtime_BW +'<br />'
+                +       '</div>'
+                +    '</div>';
+            $("div.m_mesh_mesh1").append(s_item);
+        }
+    }
+}
+function print_mesh2_detail(m,n) {
+    $(".m_mesh_mesh2_info").html("Neighbor ID : " + info.mesh_topology[m].neighbors[n].neighbor_id +
+                                   "<br> Mode : " + info.mesh_topology[m].neighbors[n].mode +
+                             "<br> Tx Packets : " + info.mesh_topology[m].neighbors[n].tx_packets +
+                             "<br> Rx Packets : " + info.mesh_topology[m].neighbors[n].rx_packets +
+                                "<br> Tx Rate : " + info.mesh_topology[m].neighbors[n].tx_rate +
+                                   "<br> RSSI : " + info.mesh_topology[m].neighbors[n].rssi +
+                             "<br> Expiretime : " + info.mesh_topology[m].neighbors[n].expiretime);
+
+    var i=0, s_item, j=0, assoc_cnt=-1;
+    var x=0, index=-1;
+    for (x=0; x<info.mesh_topology.length; x++)
+    {
+        if(info.mesh_topology[x] && (info.mesh_topology[x].node_id == info.mesh_topology[m].neighbors[n].neighbor_id)) {
+            index = x;
+            break;
+        }
+    }
+
+    if (index == -1)
+        return;
+
+    if (info.mesh_topology[index]) {
+        for (i=0; i< info.mesh_topology[index].associated_clients.length; i++) {
+            if (assoc_cnt == 2) break;/* support 3 device */
+
+            if (info.mesh_topology[index].neighbors) {
+                var meshApFound = false;
+                for (k=0; k<info.mesh_topology[index].neighbors.length;k++)
+                {
+                    if (info.mesh_topology[index].associated_clients[i].mac == info.mesh_topology[index].neighbors[k].neighbor_id)
+                    {
+                        meshApFound = true;
+                        break;
+                    }
+                }
+
+                if (meshApFound == true)
+                {
+                    continue;
+                }
+            }
+
+            if (info.lease_data) {
+                for (j=0; j< info.lease_data.length; j++)
+                {
+                    if (info.mesh_topology[index].associated_clients[i].mac == info.lease_data[j].lease_mac)
+                    {
+                        info.mesh_topology[index].associated_clients[i].Hostname = info.lease_data[j].lease_hostname;
+                        info.mesh_topology[index].associated_clients[i].IPAddress = info.lease_data[j].lease_ip;
+                        break;
+                    }
+                }
+            }
+
+            assoc_cnt++;
+            if (info.mesh_topology[index].associated_clients[i].rssi == "0") info.mesh_topology[index].associated_clients[i].rssi = "None";
+            s_item = '<div id="mesh2_client'+ (assoc_cnt+1) +'_div">'
+                +       '<div class="mesh2_client'+ (assoc_cnt+1) +'_line"></div>'
+                +       '<div class="mesh2_client'+ (assoc_cnt+1) +'_img phone"><br /><span class="mesh_client_text">'+ info.mesh_topology[index].associated_clients[i].Hostname +'</span></div>'
+                +       '<div class="mesh2_client_info info_board" style="display:none;">'
+                +                  'Hostname : '+ info.mesh_topology[index].associated_clients[i].Hostname +'<br />'
+                +                       'MAC : '+ info.mesh_topology[index].associated_clients[i].mac +'<br />'
+                +                      'RSSI : '+ info.mesh_topology[index].associated_clients[i].rssi +'<br />'
+                +               '802.11 mode : '+ info.mesh_topology[index].associated_clients[i]["802.11"] +'<br />'
+                +                'Link Speed : '+ info.mesh_topology[index].associated_clients[i].Link_Speed +'<br />'
+                +                  'Security : '+ info.mesh_topology[index].associated_clients[i].Security +'<br />'
+                +                 'Frequency : '+ info.mesh_topology[index].associated_clients[i].Frequency +'<br />'
+                +                'IP Address : '+ info.mesh_topology[index].associated_clients[i].IPAddress +'<br />'
+                +               'Realtime BW : '+ info.mesh_topology[index].associated_clients[i].Realtime_BW +'<br />'
+                +       '</div>'
+                +    '</div>';
+            $("div.m_mesh_mesh2").append(s_item);
+        }
+    }
+}
+
+function print_mesh0_detail(m,n) {
+    $(".m_mesh_mesh0_info").html("Neighbor ID : " + info.mesh_topology[m].neighbors[n].neighbor_id +
+                                   "<br> Mode : " + info.mesh_topology[m].neighbors[n].mode +
+                             "<br> Tx Packets : " + info.mesh_topology[m].neighbors[n].tx_packets +
+                             "<br> Rx Packets : " + info.mesh_topology[m].neighbors[n].rx_packets +
+                                "<br> Tx Rate : " + info.mesh_topology[m].neighbors[n].tx_rate +
+                                   "<br> RSSI : " + info.mesh_topology[m].neighbors[n].rssi +
+                             "<br> Expiretime : " + info.mesh_topology[m].neighbors[n].expiretime);
+
+    var i=0, s_item, j=0, k=0, assoc_cnt=-1;
+    var x=0, index=-1;
+    for (x=0; x<info.mesh_topology.length; x++)
+    {
+        if(info.mesh_topology[x] && (info.mesh_topology[x].node_id == info.mesh_topology[m].neighbors[n].neighbor_id)) {
+            index = x;
+            break;
+        }
+    }
+
+    if (index == -1)
+        return;
+
+    if (info.mesh_topology[index]) {
+        for (i=0; i< info.mesh_topology[index].associated_clients.length; i++) {
+            if (assoc_cnt == 2) break;/* support 3 device */
+
+            if (info.mesh_topology[index].neighbors) {
+                var meshApFound = false;
+                for (k=0; k<info.mesh_topology[index].neighbors.length;k++)
+                {
+                    if (info.mesh_topology[index].associated_clients[i].mac == info.mesh_topology[index].neighbors[k].neighbor_id)
+                    {
+                        meshApFound = true;
+                        break;
+                    }
+                }
+
+                if (meshApFound == true)
+                {
+                    continue;
+                }
+            }
+
+            if (info.lease_data) {
+                for (j=0; j< info.lease_data.length; j++)
+                {
+                    if (info.mesh_topology[index].associated_clients[i].mac == info.lease_data[j].lease_mac)
+                    {
+                        info.mesh_topology[index].associated_clients[i].Hostname = info.lease_data[j].lease_hostname;
+                        info.mesh_topology[index].associated_clients[i].IPAddress = info.lease_data[j].lease_ip;
+                        break;
+                    }
+                }
+            }
+
+            assoc_cnt++;
+            if (info.mesh_topology[index].associated_clients[i].rssi == "0") info.mesh_topology[index].associated_clients[i].rssi = "None";
+            s_item = '<div id="mesh0_client'+ (assoc_cnt+1) +'_div">'
+                +       '<div class="mesh0_client'+ (assoc_cnt+1) +'_line"></div>'
+                +       '<div class="mesh0_client'+ (assoc_cnt+1) +'_img phone"><br /><span class="mesh_client_text">'+ info.mesh_topology[index].associated_clients[i].Hostname +'</span></div>'
+                +       '<div class="mesh0_client_info info_board" style="display:none;">'
+                +                  'Hostname : '+ info.mesh_topology[index].associated_clients[i].Hostname +'<br />'
+                +                       'MAC : '+ info.mesh_topology[index].associated_clients[i].mac +'<br />'
+                +                      'RSSI : '+ info.mesh_topology[index].associated_clients[i].rssi +'<br />'
+                +               '802.11 mode : '+ info.mesh_topology[index].associated_clients[i]["802.11"] +'<br />'
+                +                'Link Speed : '+ info.mesh_topology[index].associated_clients[i].Link_Speed +'<br />'
+                +                  'Security : '+ info.mesh_topology[index].associated_clients[i].Security +'<br />'
+                +                 'Frequency : '+ info.mesh_topology[index].associated_clients[i].Frequency +'<br />'
+                +                'IP Address : '+ info.mesh_topology[index].associated_clients[i].IPAddress +'<br />'
+                +               'Realtime BW : '+ info.mesh_topology[index].associated_clients[i].Realtime_BW +'<br />'
+                +       '</div>'
+                +    '</div>';
+            $("div.m_mesh_mesh0").append(s_item);
+        }
+    }
+}
+//]]></script>
+
+<h2><a id="content" name="content"><%:Mesh Topology%></a></h2>
+
+
+<div class="topology">
+    <div class="m_mesh_root">
+        <img src="<%=media%>/internet.png" style="display:block; margin:auto;" />
+        <img src="<%=media%>/img_typo2_center.png" style="display:block; margin:auto;" />
+        <div class="m_mesh_root_image mesh_image_act"></div>
+        <div class="m_mesh_root_info info_board" style="display:none;">
+             node_id:   mesh_node1_mac5g<br />
+             type:  root<br />
+             path:  5G
+        </div>
+    </div>
+
+    <div class="m_mesh_mesh1" style="display:none;">
+        <div class="m_mesh1_line"></div>
+        <div class="m_mesh_mesh1_image mesh_image_act"></div>
+        <div class="m_mesh_mesh1_info info_board" style="display:none;">
+                neighbor_id: mesh_node2222<br />
+                mode:   ABCD<br />
+                tx_packets: 11145<br />
+                rx_packets: 11145<br />
+                tx_rate:    11145<br />
+                rssi:   11<br />
+                expiretime: 10
+        </div>
+    </div>
+
+    <div class="m_mesh_mesh2" style="display:none;">
+        <div class="m_mesh2_line1"></div>
+        <div class="m_mesh2_line2"></div>
+        <div class="m_mesh_mesh2_image mesh_image_act"></div>
+        <div class="m_mesh_mesh2_info info_board" style="display:none;">
+                neighbor_id: mesh_node33333<br />
+                mode: SSS<br />
+                tx_packets: 3344<br />
+                rx_packets: 5566<br />
+                tx_rate:    7788<br />
+                rssi:   22<br />
+                expiretime: 10
+        </div>
+
+<!--
+        <div id="mesh2_client1_div">
+            <div class="mesh2_client1_line"></div>
+            <div class="mesh2_client1_img phone"><br /><span>Acer</span></div>
+            <div class="mesh2_client_info info_board" style="display:none;">
+                neighbor_id: mesh_node2222<br />
+                mode:   ABCD<br />
+                tx_packets: 11145<br />
+                rx_packets: 11145<br />
+                tx_rate:    11145<br />
+                rssi:   11<br />
+                expiretime: 10
+            </div>
+        </div>  -->
+    </div>
+
+    <div class="m_mesh_mesh0" style="display:none;">
+        <div class="m_mesh0_line1"></div>
+        <div class="m_mesh0_line2"></div>
+        <div class="m_mesh0_line3"></div>
+        <div class="m_mesh_mesh0_image mesh_image_act"></div>
+        <div class="m_mesh_mesh0_info info_board" style="display:none;">
+                neighbor_id: ..............<br />
+                mode: SSS<br />
+                tx_packets: 3344<br />
+                rx_packets: 5566<br />
+                tx_rate:    7788<br />
+                rssi:   00<br />
+                expiretime: 10
+        </div>
+    </div>
+        <!-- <div class="m_mesh0_line1"></div>
+        <div class="m_mesh0_line2"></div>
+        <div class="m_mesh0_line3"></div>
+        <div class="m_mesh2_line1"></div>
+        <div class="m_mesh2_line2"></div>
+        <div class="m_mesh1_line"></div> -->
+</div>
+
+<style type="text/css">
+.topology {
+    position: relative;
+    width: 800px;
+    height: 700px;
+}
+
+.m_mesh_root {
+    position: relative;
+    width: 800px;
+}
+.m_mesh_root_image {
+    position: relative;
+    width: 117px;
+    height: 117px;
+    margin:auto;
+    background-image: url(<%=media%>/router_green.png);
+}
+.m_mesh_root_info {
+    position: absolute;
+    top: 80px;
+    left: 50px;
+}
+
+.mesh_image_act:hover {background-image: url(<%=media%>/router.png);}
+
+.m_mesh_mesh1 {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    float: left;
+}
+.m_mesh1_line {
+    position: absolute;
+    float: right;
+    width: 46px;
+    height: 66px;
+    right: 60px;
+    background-image: url(<%=media%>/img_typo3_left.png);
+}
+.m_mesh_mesh1_image {
+    position: absolute;
+    float: right;
+    width: 117px;
+    height: 117px;
+    right: 90px;
+    top: 70px;
+    background-image: url(<%=media%>/router_green.png);
+}
+.m_mesh_mesh1_info {
+    position: absolute;
+    top: -100px;
+    z-index: 10;
+}
+
+.m_mesh_mesh2 {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    float: right;
+}
+.m_mesh2_line1 {
+    position: absolute;
+    float: left;
+    width: 46px;
+    height: 66px;
+    left: 60px;
+    background-image: url(<%=media%>/img_typo3_right.png);
+}
+.m_mesh2_line2 {
+    position: absolute;
+    float: left;
+    width: 81px;
+    height: 18px;
+    left: -40px;
+    top: 120px;
+    background-image: url(<%=media%>/img_typo3_btmcenter.png);
+}
+.m_mesh_mesh2_image {
+    position: absolute;
+    float: right;
+    width: 117px;
+    height: 117px;
+    left: 90px;
+    top: 70px;
+    background-image: url(<%=media%>/router_green.png);
+}
+.m_mesh_mesh2_info {
+    position: absolute;
+    top: 10px;
+    left: 220px;
+    z-index: 10;
+}
+
+.m_mesh_mesh0 {
+    position: absolute;
+    width: 200px;
+    height: 350px;
+    top:  400px;
+    left: 300px;
+}
+.m_mesh0_line1 {
+    position: absolute;
+    float: left;
+    width: 60px;
+    height: 180px;
+    top: -140px;
+    left: 70px;
+    background-image: url(<%=media%>/img_typo2_center.png);
+}
+.m_mesh0_line2 {
+    position: absolute;
+    float: left;
+    width: 45px;
+    height: 66px;
+    top: 10px;
+    left: 00px;
+    background-image: url(<%=media%>/img_typo3_right.png);
+}
+.m_mesh0_line3 {
+    position: absolute;
+    float: left;
+    width: 45px;
+    height: 66px;
+    top: 10px;
+    left: 150px;
+    background-image: url(<%=media%>/img_typo3_left.png);
+}
+.m_mesh_mesh0_image {
+    position: absolute;
+    float: right;
+    width: 117px;
+    height: 117px;
+    left: 40px;
+    top: 70px;
+    background-image: url(<%=media%>/router_green.png);
+}
+.m_mesh_mesh0_info {
+    position: absolute;
+    top: -300px;
+    left:-300px;
+    z-index: 10;
+}
+
+.info_board {
+    border:2px #8DC63F solid;
+    padding: 10px;
+}
+
+.root_client1_line {
+    position: absolute;
+    width: 81px;
+    height: 18px;
+    top: 155px;
+    left: 500px;
+    background-image: url(<%=media%>/img_typo3_btmcenter.png);
+}
+.root_client1_img {
+    position: absolute;
+    top: 150px;
+    left: 600px;
+}
+.root_client_info {
+    position: absolute;
+    top: 80px;
+    left: 50px;
+}
+.root_client2_line {
+    position: absolute;
+    width: 81px;
+    height: 18px;
+    top: 120px;
+    left: 500px;
+    background-image: url(<%=media%>/img_typo3_btmcenter.png);
+}
+.root_client2_img {
+    position: absolute;
+    top: 115px;
+    left: 600px;
+}
+.root_client3_line {
+    position: absolute;
+    width: 81px;
+    height: 18px;
+    top: 190px;
+    left: 500px;
+    background-image: url(<%=media%>/img_typo3_btmcenter.png);
+}
+.root_client3_img {
+    position: absolute;
+    top: 185px;
+    left: 600px;
+}
+.root_client4_line {
+    position: absolute;
+    width: 81px;
+    height: 18px;
+    top: 85px;
+    left: 500px;
+    background-image: url(<%=media%>/img_typo3_btmcenter.png);
+}
+.root_client4_img {
+    position: absolute;
+    top: 80px;
+    left: 600px;
+}
+.laptop {
+    background: transparent url(<%=media%>/overview_icon_laptop.png) no-repeat;
+    height: 21px;
+    line-height: 21px;
+}
+.phone {
+    background: transparent url(<%=media%>/overview_icon_smartphone.png) no-repeat;
+    height: 30px;
+    line-height: 30px;
+}
+
+.mesh1_client1_line {
+    position: absolute;
+    width: 60px;
+    height: 57px;
+    top: 210px;
+    left: 225px;
+    background-image: url(<%=media%>/img_typo2_center.png);
+}
+.mesh1_client1_img {
+    position: absolute;
+    top: 280px;
+    left: 245px;
+}
+.mesh1_client_info {
+    position: absolute;
+    top: -100px;
+}
+
+.mesh1_client2_line {
+    position: absolute;
+    width: 45px;
+    height: 66px;
+    top: 200px;
+    left: 180px;
+    background-image: url(<%=media%>/img_typo3_left.png);
+}
+.mesh1_client2_img {
+    position: absolute;
+    top: 280px;
+    left: 160px;
+}
+.mesh1_client3_line {
+    position: absolute;
+    width: 45px;
+    height: 66px;
+    top: 160px;
+    left: 140px;
+    background-image: url(<%=media%>/img_typo3_left.png);
+}
+.mesh1_client3_img {
+    position: absolute;
+    top: 210px;
+    left: 110px;
+}
+
+
+.mesh2_client1_line {
+    position: absolute;
+    width: 60px;
+    height: 57px;
+    top: 210px;
+    left: 125px;
+    background-image: url(<%=media%>/img_typo2_center.png);
+}
+.mesh2_client1_img {
+    position: absolute;
+    top: 280px;
+    left: 145px;
+}
+.mesh2_client_info {
+    position: absolute;
+    top: 5px;
+    left: 220px;
+}
+
+.mesh2_client2_line {
+    position: absolute;
+    width: 45px;
+    height: 66px;
+    top: 200px;
+    left: 190px;
+    background-image: url(<%=media%>/img_typo3_right.png);
+}
+.mesh2_client2_img {
+    position: absolute;
+    top: 280px;
+    left: 230px;
+}
+.mesh2_client3_line {
+    position: absolute;
+    width: 45px;
+    height: 66px;
+    top: 160px;
+    left: 230px;
+    background-image: url(<%=media%>/img_typo3_right.png);
+}
+.mesh2_client3_img {
+    position: absolute;
+    top: 230px;
+    left: 280px;
+}
+
+
+.mesh0_client1_line {
+    position: absolute;
+    width: 60px;
+    height: 57px;
+    top: 190px;
+    left: 70px;
+    background-image: url(<%=media%>/img_typo2_center.png);
+}
+.mesh0_client1_img {
+    position: absolute;
+    top: 250px;
+    left: 90px;
+    z-index: 95;
+}
+.mesh0_client_info {
+    position: absolute;
+    top: -300px;
+    left:-300px;
+}
+
+.mesh0_client2_line {
+    position: absolute;
+    width: 60px;
+    height: 40px;
+    top: 190px;
+    left: 120px;
+    background-image: url(<%=media%>/img_typo2_center.png);
+}
+.mesh0_client2_img {
+    position: absolute;
+    top: 230px;
+    left: 140px;
+    z-index: 99;
+}
+
+.mesh0_client3_line {
+    position: absolute;
+    width: 60px;
+    height: 75px;
+    top: 190px;
+    left: 20px;
+    background-image: url(<%=media%>/img_typo2_center.png);
+}
+.mesh0_client3_img {
+    position: absolute;
+    top: 270px;
+    left: 40px;
+    z-index: 90;
+}
+
+.mesh_client_text {
+    white-space: nowrap;
+    display: block;
+    width: 80px;
+    overflow: hidden;
+}
+</style>
